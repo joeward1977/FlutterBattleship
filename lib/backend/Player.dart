@@ -1,3 +1,4 @@
+import 'package:battleship/backend/Location.dart';
 import 'package:battleship/backend/ship.dart';
 
 import 'Grid.dart';
@@ -51,6 +52,9 @@ class Player {
   }
 
   void recordOpponentGuess(int row, int col) {
+    if (playerGrid.getStatus(row, col) != Location.UNGUESSED) {
+      return;
+    }
     if (playerGrid.hasShip(row, col)) {
       playerGrid.markHit(row, col);
     } else {

@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:battleship/backend/Player.dart';
+import '../backend/Player.dart';
 import 'package:flutter/material.dart';
-import 'package:battleship/screens/GridScreen.dart';
+import '../screens/GridScreen.dart';
 
 /// Code for students to know
 /// Here are the players in the game
@@ -84,7 +84,7 @@ class _GameState extends State<Game> {
         grid: computer.getGrid().getGridStatus(),
         type: 1,
         notifyParent: refresh);
-    newGame();
+    updateGameState(startGame);
     super.initState();
   }
 
@@ -98,103 +98,24 @@ class _GameState extends State<Game> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
         body: Center(
-          child: Column(
-            children: <Widget>[
-              //
-              const SizedBox(height: 20),
-              Text(
-                theText,
-                style: const TextStyle(
-                    color: Color(0xFF2979FF),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-                selectionColor: const Color(0xFF2979FF),
-              ),
-              const SizedBox(height: 20),
-              // GRIDS
-              // This is where the grids for the game are shown
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Column(children: <Widget>[
-                      SizedBox(width: 300, height: 300, child: humanGrid),
-                      Text("Player Hits Remaining: $playerHitsRemaining"),
-                    ]),
-                    const SizedBox(width: 20),
-                    Column(children: <Widget>[
-                      SizedBox(width: 300, height: 300, child: computerGrid),
-                      Text("Computer Hits Remaining: $computerHitsRemaining")
-                    ])
-                  ]),
-              const SizedBox(height: 20),
-
-              /// BUTTONS
-              /// Here is where the buttons will be displayed
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Visibility(
-                      visible: visibleButtons,
-                      child: ElevatedButton(
-                          onPressed: () {
-                            if (gameState == placeShips) {
-                              shipPlacementDirection = 1;
-                            }
-                            if (gameState == startGame) {
-                              updateGameState(placeShips);
-                            }
-                            setState(() {
-                              humanGrid = GridScreen(
-                                  grid: human.getGrid().getGridShips(),
-                                  type: 0,
-                                  notifyParent: refresh);
-                              computerGrid = GridScreen(
-                                  grid: computer.getGrid().getGridStatus(),
-                                  type: 1,
-                                  notifyParent: refresh);
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: shipPlacementDirection == 1
-                                  ? Colors.red
-                                  : const Color(0xFF2979FF)),
-                          child: Text(buttonOneText)),
-                    ),
-                    const SizedBox(width: 20),
-                    Visibility(
-                        visible: visibleButtons,
-                        child: ElevatedButton(
-                            onPressed: () {
-                              if (gameState == placeShips) {
-                                shipPlacementDirection = 0;
-                              }
-                              if (gameState == startGame) {
-                                randomShipLocations(human);
-                                updateGameState(playGame);
-                              }
-                              setState(() {
-                                humanGrid = GridScreen(
-                                    grid: human.getGrid().getGridShips(),
-                                    type: 0,
-                                    notifyParent: refresh);
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: shipPlacementDirection == 0
-                                    ? Colors.red
-                                    : const Color(0xFF2979FF)),
-                            child: Text(buttonTwoText))),
-                    const SizedBox(width: 20),
-                    ElevatedButton(
-                        onPressed: () {
-                          updateGameState(startGame);
-                          setState(() {
+      child: Column(
+        children: <Widget>[
+          // GRIDS
+          // This is where the grids for the game are shown
+          SizedBox(
+            height: 390,
+            child: DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text(widget.title),
+                  actions: <Widget>[
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        updateGameState(startGame);
+                        setState(
+                          () {
                             humanGrid = GridScreen(
                                 grid: human.getGrid().getGridShips(),
                                 type: 0,
@@ -203,15 +124,150 @@ class _GameState extends State<Game> {
                                 grid: computer.getGrid().getGridStatus(),
                                 type: 1,
                                 notifyParent: refresh);
+                          },
+                        );
+                      },
+                      icon: const Icon(
+                        // <-- Icon
+                        Icons.refresh,
+                        size: 24.0,
+                      ),
+                      label: const Text('Restart'), // <-- Text
+                    ),
+                  ],
+                  bottom: const TabBar(
+                    tabs: [
+                      Tab(text: 'Player Grid'),
+                      Tab(text: 'Computer Grid'),
+                    ],
+                  ),
+                ),
+                body: TabBarView(
+                  children: <Widget>[
+                    Column(children: <Widget>[
+                      const SizedBox(height: 10),
+                      SizedBox(width: 250, height: 250, child: humanGrid),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment
+                              .center, //Center Column contents vertically,
+                          crossAxisAlignment: CrossAxisAlignment
+                              .center, //Center Column contents horizontally,
+                          children: [
+                            Text(
+                              "Your Hits Left: $playerHitsRemaining",
+                              style: const TextStyle(
+                                  color: Color(0xFF2979FF), fontSize: 14),
+                            ),
+                            const SizedBox(width: 20),
+                            Text(
+                              "CPU Hits Left: $computerHitsRemaining",
+                              style: const TextStyle(
+                                  color: Color(0xFF2979FF), fontSize: 14),
+                            ),
+                          ])
+                    ]),
+                    Column(children: <Widget>[
+                      const SizedBox(height: 10),
+                      SizedBox(width: 250, height: 250, child: computerGrid),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment
+                              .center, //Center Column contents vertically,
+                          crossAxisAlignment: CrossAxisAlignment
+                              .center, //Center Column contents horizontally,
+                          children: [
+                            Text(
+                              "Your Hits Left: $playerHitsRemaining",
+                              style: const TextStyle(
+                                  color: Color(0xFF2979FF), fontSize: 14),
+                            ),
+                            const SizedBox(width: 20),
+                            Text(
+                              "CPU Hits Left: $computerHitsRemaining",
+                              style: const TextStyle(
+                                  color: Color(0xFF2979FF), fontSize: 14),
+                            ),
+                          ])
+                    ])
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 10),
+          Text(
+            theText,
+            style: const TextStyle(
+                color: Color(0xFF2979FF),
+                fontWeight: FontWeight.bold,
+                fontSize: 16),
+            selectionColor: const Color(0xFF2979FF),
+          ),
+          const SizedBox(height: 10),
+
+          /// BUTTONS
+          /// Here is where the buttons will be displayed
+          Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, //Center Column contents vertically,
+              crossAxisAlignment: CrossAxisAlignment
+                  .center, //Center Column contents horizontally,
+              children: <Widget>[
+                Visibility(
+                  visible: visibleButtons,
+                  child: ElevatedButton(
+                      onPressed: () {
+                        if (gameState == placeShips) {
+                          shipPlacementDirection = 1;
+                        }
+                        if (gameState == startGame) {
+                          updateGameState(placeShips);
+                        }
+                        setState(() {
+                          humanGrid = GridScreen(
+                              grid: human.getGrid().getGridShips(),
+                              type: 0,
+                              notifyParent: refresh);
+                          computerGrid = GridScreen(
+                              grid: computer.getGrid().getGridStatus(),
+                              type: 1,
+                              notifyParent: refresh);
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: shipPlacementDirection == 1
+                              ? Colors.red
+                              : const Color(0xFF2979FF)),
+                      child: Text(buttonOneText)),
+                ),
+                const SizedBox(width: 5),
+                Visibility(
+                    visible: visibleButtons,
+                    child: ElevatedButton(
+                        onPressed: () {
+                          if (gameState == placeShips) {
+                            shipPlacementDirection = 0;
+                          }
+                          if (gameState == startGame) {
+                            randomShipLocations(human);
+                            updateGameState(playGame);
+                          }
+                          setState(() {
+                            humanGrid = GridScreen(
+                                grid: human.getGrid().getGridShips(),
+                                type: 0,
+                                notifyParent: refresh);
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2979FF)),
-                        child: const Text('Restart Game')),
-                  ])
-            ],
-          ),
-        ));
+                            backgroundColor: shipPlacementDirection == 0
+                                ? Colors.red
+                                : const Color(0xFF2979FF)),
+                        child: Text(buttonTwoText)))
+              ]),
+        ],
+      ),
+    ));
   }
 }
 
@@ -219,8 +275,8 @@ void updateGameState(int theState) {
   gameState = theState;
   if (gameState == startGame) {
     newGame();
-    buttonOneText = 'User Selected Ships';
-    buttonTwoText = 'Randomly Selected Ships';
+    buttonOneText = 'User Selected';
+    buttonTwoText = 'Randomly Selected';
     playerHitsRemaining = human.getHitsRemaining();
     computerHitsRemaining = computer.getHitsRemaining();
     visibleButtons = true;
@@ -250,6 +306,6 @@ const int placeShips = 1;
 const int playGame = 2;
 const int endGame = 3;
 
-String buttonOneText = 'User Selected Ships';
-String buttonTwoText = 'Randomly Selected Ships';
+String buttonOneText = 'User Selected';
+String buttonTwoText = 'Randomly Selected';
 bool visibleButtons = true;

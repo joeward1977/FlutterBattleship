@@ -44,9 +44,15 @@ class _GridScreenState extends State<GridScreen> {
               padding: const EdgeInsets.all(1),
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(1),
-                    backgroundColor: const Color(0xFF2979FF),
-                  ),
+                      padding: const EdgeInsets.all(1),
+                      backgroundColor: (index < 11 || index % 11 == 0)
+                          ? const Color.fromARGB(255, 19, 16, 82)
+                          : widget.grid[(index / 11).floor()][index % 11] == 'X'
+                              ? Colors.red
+                              : widget.grid[(index / 11).floor()][index % 11] ==
+                                      'S'
+                                  ? Colors.green
+                                  : const Color(0xFF2979FF)),
                   onPressed: () {
                     var row = (index / 11).floor() - 1;
                     var col = index % 11 - 1;
