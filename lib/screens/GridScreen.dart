@@ -1,4 +1,5 @@
-import 'package:battleship/main.dart';
+import '../main.dart';
+import '../backend/Grid.dart';
 import 'package:flutter/material.dart';
 import "dart:core";
 import 'GameScreen.dart';
@@ -34,7 +35,7 @@ class _GridScreenState extends State<GridScreen> {
   Widget build(BuildContext context) {
     return GridView.count(
         // Create a grid with 11 columns.
-        crossAxisCount: 11,
+        crossAxisCount: Grid.NUM_COLS + 1,
         childAspectRatio: 1,
         padding: const EdgeInsets.all(1),
         children: List.generate(
@@ -45,22 +46,26 @@ class _GridScreenState extends State<GridScreen> {
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(1),
-                      backgroundColor: (index < 11 || index % 11 == 0)
+                      backgroundColor: (index < (Grid.NUM_COLS + 1) ||
+                              index % (Grid.NUM_COLS + 1) == 0)
                           ? const Color.fromARGB(255, 19, 16, 82)
-                          : widget.grid[(index / 11).floor()][index % 11] == 'X'
+                          : widget.grid[(index / (Grid.NUM_ROWS + 1)).floor()]
+                                      [index % (Grid.NUM_COLS + 1)] ==
+                                  'X'
                               ? Colors.red
-                              : widget.grid[(index / 11).floor()][index % 11] ==
+                              : widget.grid[(index / (Grid.NUM_ROWS + 1)).floor()]
+                                          [index % (Grid.NUM_COLS + 1)] ==
                                       'S'
                                   ? Colors.green
                                   : const Color(0xFF2979FF)),
                   onPressed: () {
-                    var row = (index / 11).floor() - 1;
-                    var col = index % 11 - 1;
+                    var row = (index / (Grid.NUM_COLS + 1)).floor() - 1;
+                    var col = index % (Grid.NUM_COLS + 1) - 1;
                     if (widget.type == 0) {
                       if (gameState == placeShips &&
                           shipPlacementDirection != -1) {
                         human.addShip(row, col, shipPlacementDirection);
-                        if (human.numShips == 5) {
+                        if (human.numShipsPlaced == 5) {
                           updateGameState(playGame);
                         }
                         shipPlacementDirection = -1;
@@ -78,7 +83,9 @@ class _GridScreenState extends State<GridScreen> {
                     });
                   },
                   child: Center(
-                      child: Text(widget.grid[(index / 11).floor()][index % 11],
+                      child: Text(
+                          widget.grid[(index / (Grid.NUM_COLS + 1)).floor()]
+                              [index % (Grid.NUM_COLS + 1)],
                           style: const TextStyle(
                               color: Colors.white, fontSize: 10)))),
             );

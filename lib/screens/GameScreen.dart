@@ -1,4 +1,5 @@
 import 'dart:math';
+import '../backend/Grid.dart';
 import '../backend/Player.dart';
 import 'package:flutter/material.dart';
 import '../screens/GridScreen.dart';
@@ -23,11 +24,11 @@ void newGame() {
 
 void computerMove() {
   var rng = Random();
-  int row = rng.nextInt(10);
-  int col = rng.nextInt(10);
+  int row = rng.nextInt(Grid.NUM_ROWS);
+  int col = rng.nextInt(Grid.NUM_COLS);
   while (human.alreadyGuessed(row, col)) {
-    row = rng.nextInt(10);
-    col = rng.nextInt(10);
+    row = rng.nextInt(Grid.NUM_ROWS);
+    col = rng.nextInt(Grid.NUM_COLS);
   }
   human.recordOpponentGuess(row, col);
 
@@ -50,17 +51,7 @@ void playerMove(int row, int col) {
 
 void randomShipLocations(Player current) {
   current.clearShips();
-  var rng = Random();
-  int numShipsAdded = 0;
-  while (numShipsAdded < Player.SHIP_LENGTHS.length) {
-    int row = rng.nextInt(10);
-    int col = rng.nextInt(10);
-    int dir = rng.nextInt(2);
-    bool shipAdded = current.addShip(row, col, dir);
-    if (shipAdded) {
-      numShipsAdded++;
-    }
-  }
+  current.initializeShipsRandomly();
 }
 
 class Game extends StatefulWidget {

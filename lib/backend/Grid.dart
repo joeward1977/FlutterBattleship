@@ -2,24 +2,23 @@ import 'package:battleship/backend/ship.dart';
 import 'Location.dart';
 
 class Grid {
-  List<List<Location>> grid;
-
   static const int UNSET = -1;
   static const int HORIZONTAL = 0;
   static const int VERTICAL = 1;
 
-  // Constants for number of rows and columns.
-  static const int NUM_ROWS = 10;
-  static const int NUM_COLS = 10;
+  static final List<String> STATUS_STRINGS = ["-", "X", "O"];
 
-  int hitsRemaining;
+  // Constants for number of rows and columns.
+  static const int NUM_ROWS = 12;
+  static const int NUM_COLS = 12;
+
+  List<List<Location>> grid;
 
   // Create a new Grid. Initialize each Location in the grid
   // to be a new Location object.
-  Grid(this.grid, this.hitsRemaining) {
-    grid = List.generate(10, (i) => List.generate(10, (i) => Location()));
-
-    hitsRemaining = 0;
+  Grid(this.grid) {
+    grid = List.generate(
+        NUM_ROWS, (r) => List.generate(NUM_COLS, (c) => Location()));
   }
 
   // /**
@@ -33,46 +32,43 @@ class Grid {
   bool addShip(Ship s) {
     int row = s.getRow();
     int col = s.getCol();
-
-    if (s.getDirection() == VERTICAL) {
-      for (int i = row; i < row + s.getLength(); i++) {
-        if (!inBounds(i, col) || hasShip(i, col)) {
-          return false;
-        }
-      }
-    } else {
-      for (int i = col; i < col + s.getLength(); i++) {
-        if (!inBounds(row, i) || hasShip(row, i)) {
-          return false;
-        }
-      }
-    }
-
     int length = s.getLength();
     int dir = s.getDirection();
-    if (dir == 0) {
-      for (int i = 0; i < length; i++) {
-        setShip(row, col, true);
-        col++;
+
+    if (dir == VERTICAL) {
+      for (int r = row; r < row + length; r++) {
+        if (!inBounds(r, col) || hasShip(r, col)) {
+          return false;
+        }
       }
     } else {
-      for (int i = 0; i < length; i++) {
-        setShip(row, col, true);
-        row++;
+      for (int c = col; c < col + length; c++) {
+        if (!inBounds(row, c) || hasShip(row, c)) {
+          return false;
+        }
       }
     }
-    hitsRemaining += length;
+
+    if (dir == VERTICAL) {
+      for (int r = row; r < row + length; r++) {
+        setShip(r, col, true);
+      }
+    } else {
+      for (int c = col; c < col + length; c++) {
+        setShip(row, c, true);
+      }
+    }
+
     return true;
   }
 
-  int theHitsRemaining() {
-    return hitsRemaining;
+  bool inBounds(int row, int col) {
+    return row >= 0 && row < numRows() && col >= 0 && col < numCols();
   }
 
   // Mark a hit in this location by calling the markHit method
   // on the Location object.
   void markHit(int row, int col) {
-    hitsRemaining -= 1;
     grid[row][col].markHit();
   }
 
@@ -121,35 +117,20 @@ class Grid {
     return NUM_COLS;
   }
 
-  bool inBounds(int row, int col) {
-    return row >= 0 && row < numRows() && col >= 0 && col < numCols();
-  }
-
   List<List<String>> getGridShips() {
-    List<List<String>> shipGrid = List.generate(11, (i) => List.filled(11, ""));
+    List<List<String>> shipGrid =
+        List.generate(NUM_ROWS + 1, (i) => List.filled(NUM_COLS + 1, ""));
 
-    for (int c = 1; c < 11; c++) {
+    for (int c = 1; c < NUM_COLS + 1; c++) {
       shipGrid[0][c] = c.toStringAsFixed(0);
     }
-
     for (int r = 0; r < NUM_ROWS; r++) {
       shipGrid[r + 1][0] = String.fromCharCode(65 + r);
       for (int c = 0; c < NUM_COLS; c++) {
         int curStatus = grid[r][c].getStatus();
-        switch (curStatus) {
-          case Location.MISSED:
-            shipGrid[r + 1][c + 1] = "O";
-            break;
-          case Location.HIT:
-            shipGrid[r + 1][c + 1] = "X";
-            break;
-          default:
-            if (grid[r][c].hasAShip()) {
-              shipGrid[r + 1][c + 1] = "S";
-            } else {
-              shipGrid[r + 1][c + 1] = "-";
-            }
-            break;
+        shipGrid[r + 1][c + 1] = STATUS_STRINGS[curStatus];
+        if (grid[r][c].hasAShip() && curStatus == Location.UNGUESSED) {
+          shipGrid[r + 1][c + 1] = "S";
         }
       }
     }
@@ -158,27 +139,16 @@ class Grid {
 
   List<List<String>> getGridStatus() {
     List<List<String>> statusGrid =
-        List.generate(11, (i) => List.filled(11, ""));
-    //List.filled(11, List.filled(11, " "));
+        List.generate(NUM_ROWS + 1, (i) => List.filled(NUM_COLS + 1, ""));
 
-    for (int c = 1; c < 11; c++) {
+    for (int c = 1; c < NUM_COLS + 1; c++) {
       statusGrid[0][c] = c.toStringAsFixed(0);
     }
     for (int r = 0; r < NUM_ROWS; r++) {
       statusGrid[r + 1][0] = String.fromCharCode(65 + r);
       for (int c = 0; c < NUM_COLS; c++) {
         int curStatus = grid[r][c].getStatus();
-        switch (curStatus) {
-          case Location.MISSED:
-            statusGrid[r + 1][c + 1] = "O";
-            break;
-          case Location.HIT:
-            statusGrid[r + 1][c + 1] = "X";
-            break;
-          default:
-            statusGrid[r + 1][c + 1] = "-";
-            break;
-        }
+        statusGrid[r + 1][c + 1] = STATUS_STRINGS[curStatus];
       }
     }
     return statusGrid;

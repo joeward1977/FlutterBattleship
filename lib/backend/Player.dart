@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:battleship/backend/Location.dart';
 import 'package:battleship/backend/ship.dart';
 
@@ -7,58 +9,76 @@ class Player {
   static final List<int> SHIP_LENGTHS = [2, 3, 3, 4, 5];
   Grid playerGrid;
   List<Ship> ships;
-  int numShips;
+  int numShipsPlaced;
+  int hitsRemaining;
 
   Player()
-      : playerGrid = Grid([[]], 0),
+      : playerGrid = Grid([[]]),
         ships = [],
-        numShips = 0;
+        numShipsPlaced = 0,
+        hitsRemaining = 0;
 
   void clearShips() {
-    playerGrid = Grid([[]], 0);
+    playerGrid = Grid([[]]);
     ships = [];
-    numShips = 0;
+    numShipsPlaced = 0;
+    hitsRemaining = 0;
   }
 
   bool addShip(int row, int col, int dir) {
-    if (ships.length <= numShips) {
-      ships.add(Ship.withVariables(row, col, dir, SHIP_LENGTHS[numShips]));
-    } else {
-      ships[numShips] =
-          Ship.withVariables(row, col, dir, SHIP_LENGTHS[numShips]);
-    }
-    if (playerGrid.addShip(ships[numShips])) {
-      numShips++;
+    int len = SHIP_LENGTHS[numShipsPlaced];
+    Ship curShip = Ship.withVariables(row, col, dir, len);
+    if (playerGrid.addShip(curShip)) {
+      ships.add(curShip);
+      hitsRemaining += len;
+      numShipsPlaced++;
       return true;
     } else {
       return false;
     }
   }
 
-  int getNumShipsAdded() {
-    return numShips;
-  }
-
-  int getShipLength() {
-    return SHIP_LENGTHS[numShips];
+  int getNumShipsPlaced() {
+    return numShipsPlaced;
   }
 
   Grid getGrid() {
     return playerGrid;
   }
 
+  int getHitsRemaining() {
+    return hitsRemaining;
+  }
+
   bool alreadyGuessed(int row, int col) {
     return playerGrid.alreadyGuessed(row, col);
   }
 
-  void recordOpponentGuess(int row, int col) {
-    if (playerGrid.getStatus(row, col) != Location.UNGUESSED) {
-      return;
+  bool recordOpponentGuess(int row, int col) {
+    if (playerGrid.alreadyGuessed(row, col)) {
+      return false;
     }
     if (playerGrid.hasShip(row, col)) {
       playerGrid.markHit(row, col);
+      hitsRemaining--;
+      return true;
     } else {
       playerGrid.markMiss(row, col);
+      return false;
+    }
+  }
+
+  void initializeShipsRandomly() {
+    var rng = Random();
+    int numShipsAdded = 0;
+    while (numShipsAdded < Player.SHIP_LENGTHS.length) {
+      int row = rng.nextInt(Grid.NUM_ROWS);
+      int col = rng.nextInt(Grid.NUM_COLS);
+      int dir = rng.nextInt(2);
+      bool shipAdded = addShip(row, col, dir);
+      if (shipAdded) {
+        numShipsAdded++;
+      }
     }
   }
 
@@ -67,11 +87,7 @@ class Player {
     s.setDirection(direction);
     s.setLocation(row, col);
     playerGrid.addShip(s);
-    ships[numShips] = s;
-    numShips++;
-  }
-
-  int getHitsRemaining() {
-    return playerGrid.theHitsRemaining();
+    ships[numShipsPlaced] = s;
+    numShipsPlaced++;
   }
 }

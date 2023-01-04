@@ -11,6 +11,7 @@ class Ship {
   static const int UNSET = -1;
   static const int HORIZONTAL = 0;
   static const int VERTICAL = 1;
+
   static final List<String> directionStrings = [
     "unset direction",
     "horizontal",
