@@ -1,7 +1,5 @@
 import 'dart:math';
-
-import 'package:battleship/backend/Location.dart';
-import 'package:battleship/backend/ship.dart';
+import 'Ship.dart';
 
 import 'Grid.dart';
 

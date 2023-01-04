@@ -1,4 +1,4 @@
-import 'package:battleship/backend/ship.dart';
+import 'Ship.dart';
 import 'Location.dart';
 
 class Grid {
