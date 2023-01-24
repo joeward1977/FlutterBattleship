@@ -1,7 +1,7 @@
-backend/Grid.dart
-backend/Location.dart
-backend/Player.dart
-backend/Ship.dart
+Grid.dart
+Location.dart
+Player.dart
+Ship.dart
 
 # Miscellaneous
 *.class
