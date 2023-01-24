@@ -1,4 +1,3 @@
-import '../main.dart';
 import '../backend/Grid.dart';
 import 'package:flutter/material.dart';
 import "dart:core";
